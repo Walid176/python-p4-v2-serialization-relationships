@@ -10,15 +10,17 @@ convention = {
     "ck": "ck_%(table_name)s_%(constraint_name)s",
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
     "pk": "pk_%(table_name)s"
-}
+} 
 
 metadata = MetaData(naming_convention=convention)
 
 db = SQLAlchemy(metadata=metadata)
 
 
-class Zookeeper(db.Model):
+class Zookeeper(db.Model, SerializerMixin):
     __tablename__ = 'zookeepers'
+    serialize_only = ('id', 'name', 'animals.name', 'animals.species')
+    serialize_rules = ()
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
@@ -27,8 +29,10 @@ class Zookeeper(db.Model):
     animals = db.relationship('Animal', back_populates='zookeeper')
 
 
-class Enclosure(db.Model):
+class Enclosure(db.Model, SerializerMixin):
     __tablename__ = 'enclosures'
+
+    serialize_rules = ('-animals.enclosure',)
 
     id = db.Column(db.Integer, primary_key=True)
     environment = db.Column(db.String)
@@ -37,8 +41,10 @@ class Enclosure(db.Model):
     animals = db.relationship('Animal', back_populates='enclosure')
 
 
-class Animal(db.Model):
+class Animal(db.Model, SerializerMixin):
     __tablename__ = 'animals'
+
+    serialize_rules = ('-zookeeper.animals', '-enclosure.animals',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)

@@ -7,7 +7,7 @@ from faker import Faker
 from app import app
 from models import db, Zookeeper, Animal, Enclosure
 
-fake = Faker()
+fake = Faker() 
 
 with app.app_context():
 
